@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D-Inversiones</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'app-bg-light': '#F8F8F8',
+            'card-bg-light': '#FFFFFF',
+            'primary-green-light': '#63B381',
+            'text-dark-light': '#2D3748',
+            'text-gray-light': '#718096',
+            'border-light': '#E2E8F0',
+            'button-bg-light': '#63B381',
+            'button-text-light': '#FFFFFF',
+            'input-bg-light': '#EDF2F7',
+            'input-text-light': '#2D3748',
+            'success-text': '#38A169',
+            'accent-blue-light': '#A0D8EE',
+            'app-bg-dark': '#1A202C',
+            'card-bg-dark': '#2D3748',
+            'primary-green-dark': '#48BB78',
+            'text-light-dark': '#CBD5E0',
+            'text-gray-dark': '#A0AEC0',
+            'border-dark': '#4A5568',
+            'button-bg-dark': '#48BB78',
+            'button-text-dark': '#E2E8F0',
+            'input-bg-dark': '#4A5568',
+            'input-text-dark': '#E2E8F0',
+            'accent-blue-dark': '#7BC8E6',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2363B381'%3E%3Cpath d='M19 6H5a3 3 0 00-3 3v8a3 3 0 003 3h14a3 3 0 003-3V9a3 3 0 00-3-3zM5 8a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H6a1 1 0 01-1-1V8zm14 9H5a1 1 0 01-1-1v-4h16v4a1 1 01-1 1zm-8-3h2v2h-2z' /%3E%3C/svg%3E" type="image/svg+xml">
+
+  <!-- PWA meta -->
+  <meta name="theme-color" content="#63B381" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Alcancía" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- 2 columnas en landscape -->
+  <style>
+    .stack-or-grid { display: block; }
+    @media (orientation: landscape) {
+      .stack-or-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem; /* ~gap-5 */
+      }
+      .stack-or-grid > * { height: 100%; }
+      .landscape-span-2 { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen relative text-text-dark-light dark:text-text-light-dark transition-colors duration-300">
+
+  <!-- Fondo degradado sutil -->
+  <div class="pointer-events-none fixed inset-0 -z-10 opacity-80">
+    <div style="
+      background: -webkit-linear-gradient(90deg, #f5eb97, #d0ebb5, #abead3);
+      background: linear-gradient(90deg, #f5eb97, #d0ebb5, #abead3);
+    " class="absolute inset-0"></div>
+  </div>
+
+
+
+  
+  <div id="root"></div>
+
+  <!-- React UMD con fallback de CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"
+          onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js'"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+          onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js'"></script>
+
+  <!-- App -->
+  <script>
+    // -------------------- I18N --------------------
+    const LANG_KEY = 'alcancia_lang_v1';
+    const CURRENCY_KEY = 'alcancia_currency_v1';
+    const i18n = {
+      es: {
+        appTitleStrike: ['D-i', 'n', 'versiones'],
+        installApp: 'Instalar app',
+        goToSetupAria: 'Ir a Configuración',
+        fullscreenAria: 'Pantalla completa',
+        darkMode: 'Modo Oscuro',
+        setupTitle: 'Configuración de Inversión',
+        language: 'Idioma',
+        language_es: 'Español',
+        language_en: 'Inglés',
+        currencyLabel: 'Moneda',
+        currencyHelp: 'Afecta solo el formato mostrado',
+        basisLabel: 'Base de capitalización',
+        basis365: '365 (estándar)',
+        basis360: '360 (bancaria)',
+        childN: (n) => `Niño ${n}`,
+        deleteChildAria: (name) => `Eliminar ${name}`,
+        name: 'Nombre',
+        initialInvestment: 'Inversión Inicial',
+        annualRate: 'Tasa de Interés Anual (%)',
+        investmentDate: 'Fecha de Inversión',
+        addChild: 'Añadir Niño',
+        startInvesting: 'Guardar y Empezar a Invertir',
+        noInvestments: 'No hay inversiones para mostrar. Añade un niño en la configuración.',
+        currentCapital: 'Capital actual',
+        days: (d) => `${d} días`,
+        gainToday: 'Ganancia de hoy',
+        thisWeek: 'Esta semana',
+        thisMonth: 'Este mes',
+        totalGain: 'Ganancia total',
+        editSetup: 'Editar configuración',
+        exportCSV: 'Exportar CSV',
+        settingsAria: 'Ir a Configuración'
+      },
+      en: {
+        appTitleStrike: ['D-i', 'n', 'vestments'],
+        installApp: 'Install app',
+        goToSetupAria: 'Go to Settings',
+        fullscreenAria: 'Fullscreen',
+        darkMode: 'Dark Mode',
+        setupTitle: 'Investment Setup',
+        language: 'Language',
+        language_es: 'Spanish',
+        language_en: 'English',
+        currencyLabel: 'Currency',
+        currencyHelp: 'Display format only',
+        basisLabel: 'Compounding basis',
+        basis365: '365 (standard)',
+        basis360: '360 (banking)',
+        childN: (n) => `Child ${n}`,
+        deleteChildAria: (name) => `Delete ${name}`,
+        name: 'Name',
+        initialInvestment: 'Initial Investment',
+        annualRate: 'Annual Interest Rate (%)',
+        investmentDate: 'Investment Date',
+        addChild: 'Add Child',
+        startInvesting: 'Save and Start Investing',
+        noInvestments: 'No investments to show. Add a child in setup.',
+        currentCapital: 'Current capital',
+        days: (d) => `${d} days`,
+        gainToday: 'Today’s gain',
+        thisWeek: 'This week',
+        thisMonth: 'This month',
+        totalGain: 'Total gain',
+        editSetup: 'Edit settings',
+        exportCSV: 'Export CSV',
+        settingsAria: 'Go to Settings'
+      }
+    };
+
+    const CURRENCY_OPTIONS = [
+      { code: 'PYG', label_es: 'PYG – Guaraní',      label_en: 'PYG – Guaraní' },
+      { code: 'USD', label_es: 'USD – Dólar',        label_en: 'USD – US Dollar' },
+      { code: 'BRL', label_es: 'BRL – Real',         label_en: 'BRL – Real' },
+      { code: 'ARS', label_es: 'ARS – Peso',         label_en: 'ARS – Peso' },
+      { code: 'EUR', label_es: 'EUR – Euro',         label_en: 'EUR – Euro' },
+      { code: 'UNIV', label_es: 'Universal – $', label_en: 'Universal – $' }
+    ];
+
+    // -------------------- Utils --------------------
+    const STORAGE_KEY = 'alcancia_children_v1';
+    const VIEW_KEY = 'alcancia_view_v1';
+
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+  const formatCurrency = (amount, lang, currency) => {
+    const locale = lang === 'en' ? 'en-US' : 'es-PY';
+  
+    // Caso especial: "moneda universal" con símbolo $
+    if (currency === 'UNIV') {
+      // Aquí decides tú si quieres decimales o no
+      return '$ ' + new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+  
+    // Resto de monedas: usan ISO 4217 normal
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency
+    }).format(amount);
+  };
+
+
+    const formatDateForInput = (date) => {
+      const year = date.getUTCFullYear();
+      const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = date.getUTCDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const parseDateFromInput = (dateString) => {
+      const [y, m, d] = dateString.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    };
+
+    // --- Preferencia de idioma por URL: ?lang=en | ?lang=es (también ?l=) ---
+    function getLangFromUrl() {
+      const p = new URLSearchParams(window.location.search);
+      const v = (p.get('lang') || p.get('l') || '').toLowerCase();
+      return (v === 'en' || v === 'es') ? v : null;
+    }
+
+    // compoundingBasis: 365 o 360
+    const calculateInvestmentGrowth = (child, compoundingBasis = 365) => {
+      const today = new Date();
+      const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+      const investmentDateUtc = child.investmentDate;
+      const timeDiff = todayUtc.getTime() - investmentDateUtc.getTime();
+      const daysSinceInvestment = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
+
+      const dailyRate = (child.annualInterestRate / 100) / compoundingBasis;
+      let currentCapital = child.initialInvestment;
+      if (daysSinceInvestment > 0) currentCapital = child.initialInvestment * Math.pow(1 + dailyRate, daysSinceInvestment);
+
+      const totalGain = currentCapital - child.initialInvestment;
+
+      let dailyGain = child.initialInvestment * dailyRate;
+      if (daysSinceInvestment > 0) {
+        const capitalYesterday = child.initialInvestment * Math.pow(1 + dailyRate, Math.max(0, daysSinceInvestment - 1));
+        dailyGain = currentCapital - capitalYesterday;
+      }
+
+      let weeklyGain = totalGain;
+      if (daysSinceInvestment >= 7) {
+        const capitalWeek = child.initialInvestment * Math.pow(1 + dailyRate, daysSinceInvestment - 7);
+        weeklyGain = currentCapital - capitalWeek;
+      }
+
+      let monthlyGain = totalGain;
+      if (daysSinceInvestment >= 30) {
+        const capitalMonth = child.initialInvestment * Math.pow(1 + dailyRate, daysSinceInvestment - 30);
+        monthlyGain = currentCapital - capitalMonth;
+      }
+
+      return {
+        daysSinceInvestment,
+        currentCapital: Math.round(currentCapital),
+        totalGain: Math.round(totalGain),
+        dailyGain: Math.round(dailyGain),
+        weeklyGain: Math.round(weeklyGain),
+        monthlyGain: Math.round(monthlyGain),
+      };
+    };
+
+    // -------------------- Iconos --------------------
+    const ChestIcon = (props) => React.createElement(
+      'svg',
+      { ...props, xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 281 255', preserveAspectRatio: 'xMidYMid meet', fill: 'currentColor' },
+      React.createElement('g', { transform: 'translate(0.000000,255.000000) scale(0.100000,-0.100000)' },
+        React.createElement('path', { d: 'M1380 2354 c-110 -30 -211 -119 -251 -223 -24 -60 -31 -166 -15 -233 7 -31 5 -38 -7 -38 -8 0 -55 -20 -105 -45 l-90 -45 -170 0 c-94 0 -177 -3 -186 -6 -27 -11 -17 -46 42 -150 l58 -100 -38 -70 c-21 -38 -41 -84 -44 -101 l-6 -33 -82 0 c-50 0 -87 -5 -94 -12 -17 -17 -17 -499 0 -516 8 -8 50 -12 122 -12 l111 0 30 -48 c16 -26 65 -83 107 -128 l78 -81 0 -160 c0 -110 4 -163 12 -171 17 -17 339 -17 356 0 7 7 12 41 12 83 l0 72 63 -14 c80 -18 304 -18 385 0 l62 14 0 -72 c0 -42 5 -76 12 -83 17 -17 339 -17 356 0 8 8 12 61 12 171 l0 160 78 82 c127 131 203 283 219 436 4 41 10 59 20 59 51 0 126 82 138 149 9 52 -10 115 -45 154 -24 27 -32 30 -47 21 -26 -16 -27 -40 -4 -70 15 -19 21 -41 21 -76 0 -41 -5 -54 -29 -79 -16 -16 -34 -29 -39 -29 -5 0 -12 23 -16 51 -25 185 -131 366 -291 495 -76 62 -239 154 -272 154 -12 0 -14 7 -8 33 15 72 16 105 6 160 -28 151 -131 264 -276 302 -72 18 -113 18 -185 -1z m228 -95 c188 -93 224 -339 71 -487 -115 -111 -301 -109 -415 5 -42 42 -81 119 -90 181 -14 95 51 233 135 286 52 33 93 44 172 45 55 1 76 -4 127 -30z m-448 -470 c0 -6 22 -32 49 -58 l50 -48 -87 5 c-95 5 -120 -6 -107 -48 6 -20 12 -20 404 -20 431 0 437 1 411 51 -11 20 -18 21 -96 17 -46 -2 -84 -3 -84 -1 0 2 17 20 38 41 22 20 44 46 49 56 10 19 12 19 54 3 134 -51 309 -189 386 -305 61 -93 105 -221 110 -327 11 -205 -58 -369 -223 -532 l-83 -83 2 -142 c1 -79 -1 -144 -5 -145 -5 -2 -57 -3 -118 -3 l-110 0 0 74 c0 96 -7 102 -91 79 -91 -25 -377 -25 -467 0 -84 24 -92 17 -92 -79 l0 -74 -110 0 c-60 0 -113 0 -117 0 -5 0 -8 67 -8 149 l0 148 -72 68 c-40 37 -98 105 -129 152 l-57 85 -99 -3 -99 -3 0 194 0 193 75 -2 c86 -3 74 -13 116 107 13 34 38 88 56 118 l33 55 -49 89 c-28 48 -50 89 -50 91 0 2 65 2 144 1 142 -4 144 -3 187 23 53 34 160 85 177 85 6 0 12 -5 12 -11z m155 -101 c37 -17 31 -28 -15 -28 -38 0 -40 2 -30 20 13 23 12 23 45 8z m365 -8 c10 -19 8 -20 -37 -20 l-48 0 25 20 c32 25 47 25 60 0z' }),
+        React.createElement('path', { d: 'M1447 2244 c-4 -4 -7 -20 -7 -35 0 -19 -6 -30 -20 -34 -35 -11 -70 -63 -70 -106 0 -56 39 -97 109 -112 60 -13 83 -36 65 -64 -23 -37 -104 -23 -104 17 0 23 -32 43 -54 34 -41 -16 -4 -114 50 -134 16 -7 24 -17 24 -34 0 -56 62 -58 68 -2 2 17 12 30 26 36 56 21 82 95 54 155 -14 31 -75 65 -116 65 -54 0 -70 53 -23 76 33 17 63 4 80 -34 16 -36 38 -47 57 -31 33 28 -4 118 -56 134 -12 4 -20 17 -22 38 -2 26 -8 33 -28 35 -14 2 -29 0 -33 -4z' }),
+        React.createElement('path', { d: 'M892 1399 c-67 -34 -117 -122 -87 -153 26 -26 43 -18 68 29 26 51 54 70 108 71 27 1 54 2 59 3 17 2 12 58 -6 65 -33 13 -101 5 -142 -15z' })
+      )
+    );
+
+    const RefreshIcon = (props) => React.createElement(
+      'svg',
+      {
+        ...props,
+        xmlns: 'http://www.w3.org/2000/svg',
+        viewBox: '0 0 24 24',
+        fill: 'currentColor',
+        role: 'img',
+        'aria-hidden': 'true'
+      },
+      React.createElement('path', {
+        d: 'M1,12A11,11,0,0,1,17.882,2.7l1.411-1.41A1,1,0,0,1,21,2V6a1,1,0,0,1-1,1H16a1,1,0,0,1-.707-1.707l1.128-1.128A8.994,8.994,0,0,0,3,12a1,1,0,0,1-2,0Zm21-1a1,1,0,0,0-1,1,9.01,9.01,0,0,1-9,9,8.9,8.9,0,0,1-4.42-1.166l1.127-1.127A1,1,0,0,0,8,17H4a1,1,0,0,0-1,1v4a1,1,0,0,0,.617.924A.987.987,0,0,0,4,23a1,1,0,0,0,.707-.293L6.118,21.3A10.891,10.891,0,0,0,12,23,11.013,11.013,0,0,0,23,12,1,1,0,0,0,22,11Z'
+      })
+    );
+
+    const FullscreenIcon = (props) => React.createElement(
+      'svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', strokeWidth: 1.5, stroke: 'currentColor' },
+      React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5' })
+    );
+
+    const SettingsIcon = (props) => React.createElement(
+      'svg',
+      {
+        ...props,
+        xmlns: 'http://www.w3.org/2000/svg',
+        viewBox: '0 0 512 512',
+        fill: 'currentColor',
+        role: 'img',
+        'aria-hidden': 'true'
+      },
+      React.createElement('g', null,
+        React.createElement('path', {
+          d: 'M471.46,212.99l-42.07-7.92c-3.63-12.37-8.58-24.3-14.79-35.64l24.16-35.37c4.34-6.35,3.54-14.9-1.9-20.34 l-38.58-38.58c-5.44-5.44-13.99-6.24-20.34-1.9L342.57,97.4c-11.34-6.21-23.27-11.16-35.64-14.78l-7.92-42.07 c-1.42-7.56-8.03-13.04-15.72-13.04h-54.57c-7.69,0-14.3,5.48-15.72,13.04l-7.92,42.07c-12.37,3.63-24.3,8.58-35.64,14.78 l-35.37-24.16c-6.35-4.34-14.9-3.54-20.34,1.9l-38.58,38.58c-5.44-5.44-6.24,13.98-1.9,20.34l24.16,35.37 c-6.21,11.34-11.16,23.27-14.79,35.64l-42.07,7.92c-7.56,1.42-13.04,8.03-13.04,15.72v54.57c0,7.69,5.48,14.3,13.04,15.72 l42.07,7.92c3.63,12.37,8.58,24.3,14.79,35.64l-24.16,35.37c-4.34,6.35-3.54,14.9,1.9,20.34l38.58,38.58 c5.44,5.44,13.99,6.24,20.34,1.9l35.37-24.16c11.34,6.21,23.27,11.16,35.64,14.79l7.92,42.07c1.42,7.56,8.03,13.04,15.72,13.04 h54.57c7.69,0,14.3,5.48,15.72,13.04l7.92,42.07c12.37,3.63,24.3,8.58,35.64,14.79l35.37,24.16c6.35,4.34,14.9,3.54,20.34-1.9 l38.58-38.58c5.44-5.44,6.24-13.98,1.9-20.34l-24.16-35.37c6.21-11.34,11.16-23.27,14.79-35.64l42.07-7.92 c7.56-1.42,13.04-8.03,13.04-15.72v-54.57C484.5,221.02,479.02,214.42,471.46,212.99z M452.5,270.01l-38.98,7.34 c-6.25,1.18-11.21,5.94-12.63,12.14c-3.69,16.02-10,31.25-18.77,45.25c-3.37,5.39-3.24,12.26,0.35,17.51l22.39,32.78 l-19.82,19.82l-32.78-22.39c-5.25-3.59-12.12-3.73-17.51-0.35c-14.01,8.77-29.24,15.08-45.25,18.77 c-6.2,1.43-10.96,6.38-12.14,12.63l-7.34,38.98h-28.03l-7.34-38.98c-1.18-6.25-5.94-11.21-12.14-12.63 c-16.02-3.69-31.24-10-45.25-18.77c-5.39-3.37-12.26-3.24-17.51,0.35l-32.78,22.39l-19.82-19.82l22.39-32.78 c3.59-5.25,3.72-12.12,0.35-17.51c-8.77-14.01-15.08-29.24-18.77-45.25c-1.43-6.2-6.38-10.96-12.63-12.14l-38.98-7.34v-28.03 l38.98-7.34c6.25-1.18,11.21-5.94,12.63-12.14c3.69-16.02,10-31.25,18.77-45.25c3.37-5.39,3.24-12.26-0.35-17.51l-22.39-32.78 l19.82-19.82l32.78,22.39c5.25,3.58,12.12,3.72,17.51,0.35c14.01-8.77,29.24-15.08,45.25-18.77c6.2-1.43,10.96-6.38,12.14-12.63 l7.34-38.98h28.03l7.34,38.98c1.18,6.25,5.94,11.21,12.14,12.63c16.02,3.69,31.24,10,45.25,18.77 c5.39,3.37,12.26,3.24,17.51-0.35l32.78-22.39l19.82,19.82l-22.39,32.78c-3.59,5.25-3.72,12.12-0.35,17.51 c8.77,14.01,15.08,29.24,18.77,45.25c1.43,6.2,6.38,10.96,12.63,12.14l38.98,7.34V270.01z'
+        }),
+        React.createElement('path', {
+          d: 'M256,148.26c-59.41,0-107.74,48.33-107.74,107.74c0,59.41,48.33,107.74,107.74,107.74 S363.74,315.41,363.74,256C363.74,196.59,315.41,148.26,256,148.26z M256,331.74c-41.76,0-75.74-33.98-75.74-75.74 c0-41.76,33.98-75.74,75.74-75.74s75.74,33.98,75.74,75.74C331.74,297.76,297.76,331.74,256,331.74z'
+        })
+      )
+    );
+
+    const PlusIcon = (props) => React.createElement(
+      'svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', strokeWidth: 1.5, stroke: 'currentColor' },
+      React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M12 4.5v15m7.5-7.5h-15' })
+    );
+
+    const TrashIcon = (props) => React.createElement(
+      'svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', strokeWidth: 1.5, stroke: 'currentColor' },
+      React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166M4.772 5.79L5.5 19.673A2.25 2.25 0 007.744 21.75h8.512A2.25 2.25 0 0018.5 19.673L19.228 5.79m-12 .562a48.108 48.108 0 013.478-.397m7.5 0v-.916A2.25 2.25 0 0015.228 3.52a29.96 29.96 0 00-6.456 0A2.25 2.25 0 006.75 4.5v.916' })
+    );
+
+    // -------------------- Componentes --------------------
+    const DarkModeToggle = ({ isDarkMode, onToggle, t }) => (
+      React.createElement('div', { className: 'flex items-center space-x-2' },
+        React.createElement('span', { className: 'text-sm text-text-dark-light dark:text-text-light-dark' }, t('darkMode')),
+        React.createElement('label', { htmlFor: 'darkModeToggle', className: 'relative inline-flex items-center cursor-pointer' },
+          React.createElement('input', { type: 'checkbox', id: 'darkModeToggle', className: 'sr-only peer', checked: isDarkMode, onChange: onToggle }),
+          React.createElement('div', { className: "w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-green-light dark:peer-focus:ring-primary-green-dark rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-green-light dark:peer-checked:bg-primary-green-dark" })
+        )
+      )
+    );
+
+    const Header = ({ currentView, onRefresh, onToggleView, t }) => {
+      const toggleFullscreen = () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen && document.exitFullscreen();
+      };
+
+      const [left, strike, right] = t('appTitleStrike');
+
+      return (
+        React.createElement('header', { className: 'fixed top-0 left-0 right-0 z-10 p-4 bg-app-bg-light dark:bg-app-bg-dark text-text-dark-light dark:text-text-light-dark shadow-md dark:shadow-lg flex items-center justify-between transition-colors duration-300' },
+          React.createElement('div', { className: 'flex items-center space-x-2' },
+            currentView === 'dashboard' && (
+              React.createElement('button', {
+                onClick: onRefresh,
+                className: 'p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+                'aria-label': 'Refresh'
+              },
+                React.createElement(RefreshIcon, { className: 'w-6 h-6 text-text-dark-light dark:text-text-light-dark' })
+              )
+            ),
+            React.createElement(ChestIcon, { className: 'w-10 h-10 text-primary-green-light dark:text-primary-green-dark' }),
+            React.createElement(
+              'h1',
+              { className: 'text-xl font-bold' },
+              left,
+              React.createElement('span', { style: { textDecorationLine: 'line-through' } }, strike),
+              right
+            )
+          ),
+          React.createElement('div', { className: 'flex items-center space-x-2' },
+            React.createElement('button', { id: 'installBtn', className: 'hidden px-3 py-2 rounded-full bg-primary-green-light text-white text-sm hover:bg-green-700 transition-colors' }, t('installApp')),
+            currentView === 'dashboard' && (
+              React.createElement('button', {
+                onClick: () => onToggleView('setup'),
+                className: 'p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+                'aria-label': t('settingsAria')
+              },
+                React.createElement(SettingsIcon, { className: 'w-6 h-6 text-text-dark-light dark:text-text-light-dark' })
+              )
+            ),
+            React.createElement('button', {
+              onClick: toggleFullscreen,
+              className: 'p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+              'aria-label': t('fullscreenAria')
+            },
+              React.createElement(FullscreenIcon, { className: 'w-6 h-6 text-text-dark-light dark:text-text-light-dark' })
+            )
+          )
+        )
+      );
+    };
+
+    const ChildSetupItem = ({ child, index, onChange, onDelete, t }) => {
+      const handleInputChange = (e) => {
+        const { name, value, type } = e.target;
+        let typedValue = value;
+        if (type === 'number') {
+          typedValue = value === '' ? '' : Number(value);
+          if (Number.isNaN(typedValue)) typedValue = 0;
+        } else if (type === 'date') {
+          typedValue = parseDateFromInput(value);
+        }
+        onChange(child.id, name, typedValue);
+      };
+
+      return (
+        React.createElement('div', { className: 'bg-card-bg-light dark:bg-card-bg-dark rounded-lg shadow-md p-6 mb-4 relative transition-colors duration-300' },
+          React.createElement('h3', { className: 'text-lg font-semibold mb-4 text-text-dark-light dark:text-text-light-dark' }, t('childN')(index + 1)),
+          React.createElement('button', { onClick: () => onDelete(child.id), className: 'absolute top-4 right-4 p-2 rounded-full text-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition-colors', 'aria-label': t('deleteChildAria')(child.name || t('childN')(index + 1)) },
+            React.createElement(TrashIcon, { className: 'w-5 h-5' })
+          ),
+          React.createElement('div', { className: 'mb-4' },
+            React.createElement('label', { htmlFor: `name-${child.id}`, className: 'block text-sm font-medium text-text-gray-light dark:text-text-gray-dark mb-1' }, t('name')),
+            React.createElement('input', { type: 'text', id: `name-${child.id}`, name: 'name', value: child.name, onChange: handleInputChange, placeholder: t('name'), className: 'w-full p-3 border border-border-light dark:border-border-dark rounded-md bg-input-bg-light dark:bg-input-bg-dark text-input-text-light dark:text-input-text-dark focus:outline-none focus:ring-2 focus:ring-primary-green-light dark:focus:ring-primary-green-dark transition-colors duration-300' })
+          ),
+          React.createElement('div', { className: 'mb-4' },
+            React.createElement('label', { htmlFor: `initialInvestment-${child.id}`, className: 'block text-sm font-medium text-text-gray-light dark:text-text-gray-dark mb-1' }, t('initialInvestment')),
+            React.createElement('input', { type: 'number', inputMode: 'numeric', id: `initialInvestment-${child.id}`, name: 'initialInvestment', value: child.initialInvestment, onChange: handleInputChange, placeholder: '1000000', min: '0', step: '1', className: 'w-full p-3 border border-border-light dark:border-border-dark rounded-md bg-input-bg-light dark:bg-input-bg-dark text-input-text-light dark:text-input-text-dark focus:outline-none focus:ring-2 focus:ring-primary-green-light dark:focus:ring-primary-green-dark transition-colors duration-300' })
+          ),
+          React.createElement('div', { className: 'mb-4' },
+            React.createElement('label', { htmlFor: `annualInterestRate-${child.id}`, className: 'block text-sm font-medium text-text-gray-light dark:text-text-gray-dark mb-1' }, t('annualRate')),
+            React.createElement('input', { type: 'number', id: `annualInterestRate-${child.id}`, name: 'annualInterestRate', value: child.annualInterestRate, onChange: handleInputChange, placeholder: '15', min: '0', step: '0.01', className: 'w-full p-3 border border-border-light dark:border-border-dark rounded-md bg-input-bg-light dark:bg-input-bg-dark text-input-text-light dark:text-input-text-dark focus:outline-none focus:ring-2 focus:ring-primary-green-light dark:focus:ring-primary-green-dark transition-colors duration-300' })
+          ),
+          React.createElement('div', { className: 'mb-1' },
+            React.createElement('label', { htmlFor: `investmentDate-${child.id}`, className: 'block text-sm font-medium text-text-gray-light dark:text-text-gray-dark mb-1' }, t('investmentDate')),
+            React.createElement('input', { type: 'date', id: `investmentDate-${child.id}`, name: 'investmentDate', value: formatDateForInput(child.investmentDate), onChange: handleInputChange, className: 'w-full p-3 border border-border-light dark:border-border-dark rounded-md bg-input-bg-light dark:bg-input-bg-dark text-input-text-light dark:text-input-text-dark focus:outline-none focus:ring-2 focus:ring-primary-green-light dark:focus:ring-primary-green-dark transition-colors duration-300' })
+          )
+        )
+      );
+    };
+
+    const ChildInvestmentCard = ({ child, compoundingBasis, t, lang, currency }) => {
+      const summary = React.useMemo(() => calculateInvestmentGrowth(child, compoundingBasis), [child, compoundingBasis]);
+
+      return (
+        React.createElement('div', { className: 'bg-card-bg-light dark:bg-card-bg-dark rounded-lg shadow-md p-6 mb-4 transition-colors duration-300' },
+          React.createElement('div', { className: 'flex items-center justify-between mb-4' },
+            React.createElement('h3', { className: 'text-xl font-bold text-text-dark-light dark:text-text-light-dark' }, child.name),
+            React.createElement(ChestIcon, { className: 'w-10 h-10 text-primary-green-light dark:text-primary-green-dark' })
+          ),
+          React.createElement('div', { className: 'mb-4' },
+            React.createElement('p', { className: 'text-sm text-text-gray-light dark:text-text-gray-dark whitespace-pre-line' }, `${t('currentCapital')} (${t('days')(summary.daysSinceInvestment)})`),
+            React.createElement('p', { className: 'text-3xl font-extrabold text-text-dark-light dark:text-text-light-dark' }, formatCurrency(summary.currentCapital, lang, currency))
+          ),
+          React.createElement('div', { className: 'space-y-2' },
+            React.createElement('div', { className: 'flex justify-between items-center text-text-dark-light dark:text-text-light-dark' },
+              React.createElement('p', { className: 'text-sm' }, t('gainToday')),
+              React.createElement('p', { className: 'text-base font-semibold text-success-text' }, '+', formatCurrency(summary.dailyGain, lang, currency))
+            ),
+            React.createElement('div', { className: 'flex justify-between items-center bg-accent-blue-light dark:bg-accent-blue-dark rounded-md p-2 text-text-dark-light dark:text-text-light-dark' },
+              React.createElement('p', { className: 'text-sm' }, t('thisWeek')),
+              React.createElement('p', { className: 'text-base font-semibold text-white' }, '+', formatCurrency(summary.weeklyGain, lang, currency))
+            ),
+            React.createElement('div', { className: 'flex justify-between items-center text-text-dark-light dark:text-text-light-dark' },
+              React.createElement('p', { className: 'text-sm' }, t('thisMonth')),
+              React.createElement('p', { className: 'text-base font-semibold text-orange-500' }, '+', formatCurrency(summary.monthlyGain, lang, currency))
+            ),
+            React.createElement('div', { className: 'flex justify-between items-center text-text-dark-light dark:text-text-light-dark' },
+              React.createElement('p', { className: 'text-sm' }, t('totalGain')),
+              React.createElement('p', { className: 'text-base font-semibold' }, '+', formatCurrency(summary.totalGain, lang, currency))
+            )
+          )
+        )
+      );
+    };
+
+    // -------------------- App --------------------
+    function App() {
+      const INITIAL_CHILD_DATA = [
+        { id: 'child-1', name: 'David', initialInvestment: 1150000, annualInterestRate: 15, investmentDate: parseDateFromInput('2025-06-03') },
+        { id: 'child-2', name: 'Sophie', initialInvestment: 850000, annualInterestRate: 15, investmentDate: parseDateFromInput('2025-04-01') },
+      ];
+
+      const [children, setChildren] = React.useState(() => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return INITIAL_CHILD_DATA;
+          const parsed = JSON.parse(raw);
+          return parsed.map(c => ({ ...c, investmentDate: new Date(c.investmentDate) }));
+        } catch { return INITIAL_CHILD_DATA; }
+      });
+
+      const [currentView, setCurrentView] = React.useState(() => localStorage.getItem(VIEW_KEY) || 'setup');
+
+      const [isDarkMode, setIsDarkMode] = React.useState(() => {
+        const saved = localStorage.getItem('darkMode');
+        return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      });
+
+      const [basis, setBasis] = React.useState(() => (localStorage.getItem('basis') || '365'));
+
+      // ---------- Estado de idioma con prioridad por URL ----------
+      const [lang, setLang] = React.useState(() => {
+        const fromUrl = getLangFromUrl();
+        if (fromUrl) {
+          localStorage.setItem(LANG_KEY, fromUrl); // persiste preferencia
+          return fromUrl;
+        }
+        const saved = localStorage.getItem(LANG_KEY);
+        if (saved) return saved;
+        return navigator.language && navigator.language.toLowerCase().startsWith('en') ? 'en' : 'es';
+      });
+
+      const [currency, setCurrency] = React.useState(() => {
+        const saved = localStorage.getItem(CURRENCY_KEY);
+        return saved || 'PYG';
+      });
+
+      const t = React.useCallback((key) => i18n[lang][key], [lang]);
+
+      React.useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+        localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+      }, [isDarkMode]);
+
+      React.useEffect(() => {
+        const payload = children.map(c => ({ ...c, investmentDate: c.investmentDate.toISOString() }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      }, [children]);
+
+      React.useEffect(() => { localStorage.setItem(VIEW_KEY, currentView); }, [currentView]);
+      React.useEffect(() => { localStorage.setItem('basis', basis); }, [basis]);
+
+      React.useEffect(() => {
+        localStorage.setItem(LANG_KEY, lang);
+        document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'es');
+      }, [lang]);
+
+      React.useEffect(() => { localStorage.setItem(CURRENCY_KEY, currency); }, [currency]);
+
+      const handleChildChange = (id, field, value) => {
+        setChildren(prev => prev.map(ch => ch.id === id ? { ...ch, [field]: value } : ch));
+      };
+      const handleAddChild = () => {
+        setChildren(prev => ([...prev, { id: generateUUID(), name: (lang === 'en' ? `Child ${prev.length + 1}` : `Niño ${prev.length + 1}`), initialInvestment: 0, annualInterestRate: 0, investmentDate: parseDateFromInput(formatDateForInput(new Date())) }]));
+      };
+      const handleDeleteChild = (id) => setChildren(prev => prev.filter(ch => ch.id !== id));
+      const handleToggleDarkMode = () => setIsDarkMode(m => !m);
+      const refreshData = React.useCallback(() => setChildren(prev => [...prev]), []);
+
+      const exportCSV = () => {
+        const headers = ['nombre', 'capital_actual', 'ganancia_hoy', 'ganancia_semana', 'ganancia_mes', 'ganancia_total'];
+        const rows = children.map(ch => {
+          const s = calculateInvestmentGrowth(ch, Number(basis));
+          return [ch.name, s.currentCapital, s.dailyGain, s.weeklyGain, s.monthlyGain, s.totalGain].join(',');
+        });
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'alcancia_resumen.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      return (
+        React.createElement('div', { className: 'min-h-screen pt-16 pb-24 bg-app-bg-light dark:bg-app-bg-dark text-text-dark-light dark:text-text-light-dark transition-colors duration-300' },
+          React.createElement(Header, { currentView, onToggleView: setCurrentView, onRefresh: refreshData, t }),
+          React.createElement('main', { className: 'p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto' },
+
+            currentView === 'setup' ? (
+              React.createElement('div', { className: 'space-y-4' },
+                React.createElement('h2', { className: 'text-2xl font-bold mb-6 text-center text-text-dark-light dark:text-text-light-dark' }, t('setupTitle')),
+
+                /* Selector de idioma */
+                React.createElement('div', { className: 'flex items-center gap-3 mb-2' },
+                  React.createElement('label', { className: 'text-sm text-text-gray-light dark:text-text-gray-dark' }, t('language')),
+                  React.createElement('select', {
+                    value: lang,
+                    onChange: (e) => setLang(e.target.value),
+                    className: 'p-2 rounded border border-border-light dark:border-border-dark bg-input-bg-light dark:bg-input-bg-dark'
+                  },
+                    React.createElement('option', { value: 'es' }, t('language_es')),
+                    React.createElement('option', { value: 'en' }, t('language_en'))
+                  )
+                ),
+
+                /* Selector de moneda */
+                React.createElement('div', { className: 'flex items-center gap-3 mb-2' },
+                  React.createElement('label', { className: 'text-sm text-text-gray-light dark:text-text-gray-dark' }, t('currencyLabel')),
+                  React.createElement('select', {
+                    value: currency,
+                    onChange: (e) => setCurrency(e.target.value),
+                    className: 'p-2 rounded border border-border-light dark:border-border-dark bg-input-bg-light dark:bg-input-bg-dark'
+                  },
+                    CURRENCY_OPTIONS.map(opt =>
+                      React.createElement('option', { key: opt.code, value: opt.code },
+                        lang === 'en' ? opt.label_en : opt.label_es
+                      )
+                    )
+                  ),
+                  React.createElement('span', { className: 'text-xs text-text-gray-light dark:text-text-gray-dark' }, `(${t('currencyHelp')})`)
+                ),
+
+                /* Base de capitalización */
+                React.createElement('div', { className: 'flex items-center gap-3 mb-2' },
+                  React.createElement('label', { className: 'text-sm text-text-gray-light dark:text-text-gray-dark' }, t('basisLabel')),
+                  React.createElement('select', { value: basis, onChange: (e) => setBasis(e.target.value), className: 'p-2 rounded border border-border-light dark:border-border-dark bg-input-bg-light dark:bg-input-bg-dark' },
+                    React.createElement('option', { value: '365' }, t('basis365')),
+                    React.createElement('option', { value: '360' }, t('basis360'))
+                  )
+                ),
+
+                React.createElement('div', { className: 'stack-or-grid' },
+                  children.map((child, index) => React.createElement(ChildSetupItem, { key: child.id, child, index, onChange: handleChildChange, onDelete: handleDeleteChild, t }))
+                ),
+
+                React.createElement('button', { onClick: handleAddChild, className: 'w-full flex items-center justify-center p-4 bg-primary-green-light dark:bg-primary-green-dark text-button-text-light dark:text-button-text-dark rounded-md shadow-md hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300 text-lg font-semibold space-x-2' },
+                  React.createElement(PlusIcon, { className: 'w-5 h-5' }), React.createElement('span', null, t('addChild'))
+                ),
+
+                React.createElement('div', { className: 'flex justify-center mt-8' }, React.createElement(DarkModeToggle, { isDarkMode, onToggle: handleToggleDarkMode, t })),
+
+                React.createElement('div', { className: 'fixed bottom-0 left-0 right-0 p-4 bg-app-bg-light dark:bg-app-bg-dark shadow-lg dark:shadow-xl flex justify-center z-10' },
+                  React.createElement('button', { onClick: () => setCurrentView('dashboard'), className: 'w-full sm:w-auto px-6 py-3 bg-primary-green-light dark:bg-primary-green-dark text-button-text-light dark:text-button-text-dark rounded-full font-bold text-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300' }, t('startInvesting'))
+                )
+              )
+            ) : (
+              React.createElement('div', { className: 'space-y-6' },
+
+                React.createElement('div', { className: 'stack-or-grid' },
+                  children.length === 0
+                    ? React.createElement('p', { className: 'text-center text-text-gray-light dark:text-text-gray-dark mt-8' }, t('noInvestments'))
+                    : children.map((child) => React.createElement(ChildInvestmentCard, { key: child.id, child, compoundingBasis: Number(basis), t, lang, currency }))
+                ),
+
+                /* Botones (ocultos por diseño) */
+                React.createElement('div', { className: 'hidden flex flex-wrap gap-3 justify-center' },
+                  React.createElement('button', { onClick: () => setCurrentView('setup'), className: 'px-5 py-3 rounded-full bg-primary-green-light dark:bg-primary-green-dark text-white font-semibold hover:bg-green-700 dark:hover:bg-green-600 transition-colors' }, t('editSetup')),
+                  React.createElement('button', { onClick: exportCSV, className: 'px-5 py-3 rounded-full border border-border-light dark:border-border-dark text-text-dark-light dark:text-text-light-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors' }, t('exportCSV'))
+                ),
+
+                React.createElement('div', { className: 'flex justify-center mt-4' }, React.createElement(DarkModeToggle, { isDarkMode, onToggle: handleToggleDarkMode, t }))
+              )
+            )
+          )
+        )
+      );
+    }
+
+    // -------------------- Montaje seguro --------------------
+    function whenReactReady(cb) {
+      if (window.React && window.ReactDOM) return cb();
+      const start = performance.now();
+      const t = setInterval(() => {
+        if (window.React && window.ReactDOM) {
+          clearInterval(t); cb();
+        }
+        if (performance.now() - start > 5000) {
+          clearInterval(t);
+          console.error('React/ReactDOM no cargaron desde la CDN.');
+        }
+      }, 50);
+    }
+
+    whenReactReady(() => {
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(React.createElement(React.StrictMode, null, React.createElement(App)));
+    });
+
+    // -------------------- PWA: SW e instalación --------------------
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js', { scope: './' });
+      });
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('installBtn');
+      if (installBtn) installBtn.classList.remove('hidden');
+    });
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('#installBtn');
+      if (!btn || !deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') btn.classList.add('hidden');
+      deferredPrompt = null;
+    });
+    window.addEventListener('appinstalled', () => {
+      const installBtn = document.getElementById('installBtn');
+      if (installBtn) installBtn.classList.add('hidden');
+    });
+
+    // -------------------- Smoke tests no bloqueantes --------------------
+    (function runSmokeTests(){
+      try {
+        console.assert(typeof calculateInvestmentGrowth === 'function', 'calc debe existir');
+        const s = calculateInvestmentGrowth({initialInvestment: 1000000, annualInterestRate: 36, investmentDate: new Date(Date.UTC(2025,0,1))}, 360);
+        console.assert(Number.isFinite(s.currentCapital), 'capital es número');
+      } catch (e) {
+        console.warn('Tests fallaron:', e);
+      }
+    })();
+  </script>
+</body>
+</html>
